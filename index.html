@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css"> 
+  <title>戎糖小记</title>
+  </head>
+  <body>
+    <header>
+      <h1><img src="左logo.png" alt="logo"></h1>
+      <ul>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="works.html">我的作品</a></li>
+            <li><a href="about.html">关于我们</a></li>
+            <li><a href="contact.html">联系我们</a></li>
+        </ul>
+    </header>
+    <main>
+      <section class="firstpic-section">
+        <div class="firstpic-container">
+          <img src="firstpic.jpg" alt="firstpic" class="firstpic">
+          <div class="firstpic-overlay"></div>
+          <div class="firstpic-content">
+            <h2>欢迎来到戎糖小记</h2>
+            <p>这儿是一个展示作品和分享故事的地方</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="carousel-section">
+        <div class="title-text">最近展示</div>
+        <div class="carousel" id="carousel">
+          <div class="carousel-main">
+            <img src="gdthree.jpg" alt="图1" class="active">
+            <img src="gdtwo.jpg" alt="图2">
+            <img src="gdone.jpg" alt="图3">
+            <img src="https://picsum.photos/800/450?random=4" alt="图4">
+            <img src="https://picsum.photos/800/450?random=5" alt="图5">
+          </div>
+          <div class="carousel-prev-thumb" id="prevThumb"></div>
+          <div class="carousel-next-thumb" id="nextThumb"></div>
+          <div class="carousel-arrow carousel-prev" id="prevBtn"></div>
+          <div class="carousel-arrow carousel-next" id="nextBtn"></div>
+        </div>
+      </section>
+
+    </main>
+    <script>
+      const carousel = document.getElementById('carousel');
+      const mainImages = carousel.querySelectorAll('.carousel-main img');
+      const prevThumb = document.getElementById('prevThumb');
+      const nextThumb = document.getElementById('nextThumb');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      let currentIndex = 0;
+      const total = mainImages.length;
+      let autoplayTimer;
+
+      function updateThumbs() {
+        const prevIdx = (currentIndex - 1 + total) % total;
+        const nextIdx = (currentIndex + 1) % total;
+        prevThumb.innerHTML = `<img src="${mainImages[prevIdx].src}" alt="上一张">`;
+        nextThumb.innerHTML = `<img src="${mainImages[nextIdx].src}" alt="下一张">`;
+      }
+
+      function goTo(index) {
+        mainImages[currentIndex].classList.remove('active');
+        currentIndex = (index + total) % total;
+        mainImages[currentIndex].classList.add('active');
+        updateThumbs();
+        carouselMain.style.cursor = mainImages[currentIndex].src.includes('gdthree.jpg') ? 'pointer' : 'default';
+      }
+
+      function prev() {
+        goTo(currentIndex - 1);
+      }
+
+      function next() {
+        goTo(currentIndex + 1);
+      }
+
+      function startAutoplay() {
+        stopAutoplay();
+        autoplayTimer = setInterval(next, 2500);
+      }
+
+      function stopAutoplay() {
+        clearInterval(autoplayTimer);
+      }
+
+      prevBtn.addEventListener('click', prev);
+      nextBtn.addEventListener('click', next);
+      prevThumb.addEventListener('click', prev);
+      nextThumb.addEventListener('click', next);
+
+      carousel.addEventListener('mouseenter', stopAutoplay);
+      carousel.addEventListener('mouseleave', startAutoplay);
+
+      const carouselMain = carousel.querySelector('.carousel-main');
+      carouselMain.addEventListener('click', function() {
+        const currentImg = mainImages[currentIndex];
+        if (currentImg.src.includes('gdthree.jpg')) {
+          window.location.href = 'time.html';
+        }
+      });
+
+      updateThumbs();
+      carouselMain.style.cursor = mainImages[currentIndex].src.includes('gdthree.jpg') ? 'pointer' : 'default';
+      startAutoplay();
+    </script>
+  </body>
+</html>
