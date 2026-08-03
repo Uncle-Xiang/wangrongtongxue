@@ -8,7 +8,7 @@
   </head>
   <body>
     <header>
-      <h1><img src="左logo.png" alt="logo"></h1>
+      <h1><a href="index.html"><img src="左logo.png" alt="logo"></a></h1>
       <ul>
             <li><a href="index.html">首页</a></li>
             <li><a href="works.html">我的作品</a></li>
@@ -32,11 +32,11 @@
         <div class="title-text">最近展示</div>
         <div class="carousel" id="carousel">
           <div class="carousel-main">
-            <img src="gdthree.jpg" alt="图1" class="active">
-            <img src="gdtwo.jpg" alt="图2">
-            <img src="gdone.jpg" alt="图3">
-            <img src="https://picsum.photos/800/450?random=4" alt="图4">
-            <img src="https://picsum.photos/800/450?random=5" alt="图5">
+            <img src="gd1.jpg" alt="图1" class="active">
+            <img src="gd2.jpg" alt="图2" data-href="https://mp.weixin.qq.com/s/Ydptq01KOBoXR7nXBdMh0Q">
+            <img src="gd3.jpg" alt="图3" data-href="https://mp.weixin.qq.com/s/G9l5XR7qGsJamSHsWNJnXw">
+            <img src="gd4.jpg" alt="图4" data-href="https://mp.weixin.qq.com/s/替换为图4链接">
+            <img src="https://picsum.photos/800/450?random=5" alt="图5" >
           </div>
           <div class="carousel-prev-thumb" id="prevThumb"></div>
           <div class="carousel-next-thumb" id="nextThumb"></div>
@@ -70,7 +70,7 @@
         currentIndex = (index + total) % total;
         mainImages[currentIndex].classList.add('active');
         updateThumbs();
-        carouselMain.style.cursor = mainImages[currentIndex].src.includes('gdthree.jpg') ? 'pointer' : 'default';
+        carouselMain.style.cursor = (mainImages[currentIndex].src.includes('gd1.jpg') || mainImages[currentIndex].dataset.href) ? 'pointer' : 'default';
       }
 
       function prev() {
@@ -83,7 +83,7 @@
 
       function startAutoplay() {
         stopAutoplay();
-        autoplayTimer = setInterval(next, 2500);
+        autoplayTimer = setInterval(next, 3000);
       }
 
       function stopAutoplay() {
@@ -101,13 +101,15 @@
       const carouselMain = carousel.querySelector('.carousel-main');
       carouselMain.addEventListener('click', function() {
         const currentImg = mainImages[currentIndex];
-        if (currentImg.src.includes('gdthree.jpg')) {
+        if (currentImg.src.includes('gd1.jpg')) {
           window.location.href = 'time.html';
+        } else if (currentImg.dataset.href) {
+          window.open(currentImg.dataset.href, '_blank');
         }
       });
 
       updateThumbs();
-      carouselMain.style.cursor = mainImages[currentIndex].src.includes('gdthree.jpg') ? 'pointer' : 'default';
+      carouselMain.style.cursor = (mainImages[currentIndex].src.includes('gd1.jpg') || mainImages[currentIndex].dataset.href) ? 'pointer' : 'default';
       startAutoplay();
     </script>
   </body>
