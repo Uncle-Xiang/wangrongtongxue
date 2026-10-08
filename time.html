@@ -2,12 +2,28 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0a1a">
   <link rel="stylesheet" href="style.css">
   <title>倒计时 - 戎糖小记</title>
   <style>
+    html, body {
+      min-height: 100vh;
+      min-height: 100dvh; /* 移动端动态视口高度，避免地址栏伸缩导致跳动 */
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      overscroll-behavior: none; /* 防止下拉刷新 / 上滑回弹干扰烟花触摸 */
+    }
+
     body {
       min-height: 100vh;
+    }
+
+    /* 安全区适配（刘海屏 / 底部 Home 条） */
+    .back-btn {
+      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) 0 env(safe-area-inset-left, 0);
     }
 
     body.celebrating {
@@ -187,7 +203,8 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
+      height: 100dvh; /* 移动端动态视口高度，地址栏伸缩不影响 */
       pointer-events: none;
       z-index: 9999;
     }
@@ -258,6 +275,117 @@
 
       .celebration-emoji {
         font-size: 56px;
+      }
+    }
+
+    /* 超窄屏（iPhone SE / 折叠屏外屏）进一步压缩 */
+    @media (max-width: 380px) {
+      .back-btn {
+        width: 48px;
+        height: 48px;
+        top: 70px;
+        left: 10px;
+      }
+
+      .back-btn .back-text {
+        font-size: 11px;
+      }
+
+      .back-btn .back-arrow {
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-right: 5px solid #fff;
+      }
+
+      .countdown-section {
+        padding: 15px 10px;
+      }
+
+      .countdown-title {
+        font-size: 17px;
+        padding: 5px 16px;
+        margin-bottom: 24px;
+      }
+
+      .countdown-title::after {
+        left: -22px;
+        width: calc(100% + 44px);
+      }
+
+      .countdown-container {
+        gap: 10px;
+      }
+
+      .countdown-number {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(255, 188, 197, 0.35);
+      }
+
+      .countdown-label {
+        font-size: 12px;
+      }
+
+      .countdown-desc {
+        margin-top: 20px;
+        font-size: 12px;
+      }
+
+      .celebration {
+        padding: 24px 12px;
+        gap: 16px;
+      }
+
+      .celebration-title {
+        font-size: 32px;
+        letter-spacing: 4px;
+      }
+
+      .celebration-subtitle {
+        font-size: 13px;
+        letter-spacing: 1px;
+      }
+
+      .celebration-emoji {
+        font-size: 44px;
+      }
+    }
+
+    /* 横屏（手机躺平）：垂直空间紧张，压缩返回按钮 + 顶部留白 */
+    @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+      .back-btn {
+        top: 20px;
+        left: 20px;
+        width: 48px;
+        height: 48px;
+      }
+
+      .countdown-section {
+        padding: 30px 15px 20px;
+        min-height: calc(100dvh - 80px);
+      }
+
+      .countdown-title {
+        font-size: 18px;
+        margin-bottom: 16px;
+      }
+
+      .countdown-number {
+        width: 64px;
+        height: 64px;
+        font-size: 28px;
+        margin-bottom: 6px;
+      }
+
+      .celebration-title {
+        font-size: 36px;
+        letter-spacing: 5px;
+      }
+
+      .celebration-emoji {
+        font-size: 48px;
       }
     }
   </style>
@@ -354,13 +482,30 @@
     const ctx = canvas.getContext('2d');
     let particles = [];
     let rockets = [];
+    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2)); // 限制最大 2，避免高分屏性能爆掉
+    // 手机端粒子规模系数：屏越窄粒子越少，保证流畅
+    const particleScale = window.innerWidth < 380 ? 0.5
+                       : window.innerWidth < 600 ? 0.7
+                       : 1;
+    // 光晕系数：移动端降低 shadowBlur（Canvas 最耗性能的操作）
+    const glowScale = window.innerWidth < 600 ? 0.4 : 1;
+
+    // CSS 像素宽高（烟花逻辑用这个，避免每次取 window.innerWidth）
+    let cw = window.innerWidth;
+    let ch = window.innerHeight;
 
     function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      cw = window.innerWidth;
+      ch = window.innerHeight;
+      canvas.style.width = cw + 'px';
+      canvas.style.height = ch + 'px';
+      canvas.width = Math.floor(cw * dpr);
+      canvas.height = Math.floor(ch * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // 用 CSS 像素作坐标
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
 
     // 烟花配色
     const fireworkColors = [
@@ -371,7 +516,7 @@
     ];
 
     function createFirework(x, y) {
-      const count = 50 + Math.floor(Math.random() * 60);
+      const count = Math.floor((50 + Math.floor(Math.random() * 60)) * particleScale);
       const color = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
       const shape = Math.random();
 
@@ -464,12 +609,12 @@
 
     // 发射烟花桶：从屏幕底部随机位置升空，到达随机高度后爆炸
     function launchRocket() {
-      const startX = canvas.width * (0.05 + Math.random() * 0.9);
-      const targetY = canvas.height * (0.1 + Math.random() * 0.45);
+      const startX = cw * (0.05 + Math.random() * 0.9);
+      const targetY = ch * (0.1 + Math.random() * 0.45);
       const color = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
       rockets.push({
         x: startX,
-        y: canvas.height + 10,
+        y: ch + 10,
         vx: (Math.random() - 0.5) * 3,
         vy: -(7 + Math.random() * 6),
         targetY: targetY,
@@ -479,7 +624,7 @@
     }
 
     function animateFireworks() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, cw, ch);
 
       // 更新上升中的烟花桶
       rockets = rockets.filter(r => {
@@ -498,7 +643,7 @@
 
         // 绘制上升拖尾
         ctx.shadowColor = r.color;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 12 * glowScale;
         r.trail.forEach((t, i) => {
           ctx.globalAlpha = (i / r.trail.length) * 0.6;
           ctx.fillStyle = r.color;
@@ -532,7 +677,7 @@
         ctx.fill();
 
         ctx.shadowColor = p.color;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 8 * glowScale;
         return true;
       });
       ctx.globalAlpha = 1;
@@ -554,19 +699,35 @@
     }
 
     // 点击屏幕触发烟花（仅倒计时结束后）
-    document.addEventListener('click', (e) => {
+    // 节流：连续点击最多 80ms 一次，避免手机连点粒子爆掉帧率
+    let lastFireAt = 0;
+    function tryFireAt(x, y, target) {
       if (!countdownEnded) return;
-      if (e.target.closest('.back-btn, header a, .swiper-button-prev, .swiper-button-next, .swiper-pagination-bullet')) return;
-      createFirework(e.clientX, e.clientY);
+      // 烟花画布本身 pointer-events:none，不会拦截；这里只跳过交互控件
+      if (target.closest && target.closest('.back-btn, header a, header, .swiper-button-prev, .swiper-button-next, .swiper-pagination-bullet')) return;
+      const now = performance.now();
+      if (now - lastFireAt < 80) return;
+      lastFireAt = now;
+      createFirework(x, y);
+    }
+
+    document.addEventListener('click', (e) => {
+      tryFireAt(e.clientX, e.clientY, e.target);
     });
 
-    // 触摸支持
+    // 触摸支持：手机端主力交互
     document.addEventListener('touchstart', (e) => {
       if (!countdownEnded) return;
-      if (e.target.closest('.back-btn, header a')) return;
+      // 多指不处理
+      if (e.touches.length > 1) return;
       const touch = e.touches[0];
-      createFirework(touch.clientX, touch.clientY);
-    });
+      const t = e.target;
+      // 点击交互控件时放行，让后续 click 正常触发
+      if (t.closest && t.closest('.back-btn, header a, header, .swiper-button-prev, .swiper-button-next, .swiper-pagination-bullet')) return;
+      tryFireAt(touch.clientX, touch.clientY, t);
+      // 否则阻止合成 click 与页面滚动，避免重复烟花 / 庆祝界面被拖动
+      e.preventDefault();
+    }, { passive: false });
   </script>
 </body>
 </html>
