@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css"> 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <title>戎糖小记</title>
   </head>
   <body>
@@ -30,87 +31,76 @@
 
       <section class="carousel-section">
         <div class="title-text">最近展示</div>
-        <div class="carousel" id="carousel">
-          <div class="carousel-main">
-            <img src="gd1.jpg" alt="图1" class="active">
-            <img src="gd2.jpg" alt="图2" data-href="https://mp.weixin.qq.com/s/Ydptq01KOBoXR7nXBdMh0Q">
-            <img src="gd3.jpg" alt="图3" data-href="https://mp.weixin.qq.com/s/G9l5XR7qGsJamSHsWNJnXw">
-            <img src="gd4.jpg" alt="图4" data-href="https://mp.weixin.qq.com/s/替换为图4链接">
-            <img src="https://picsum.photos/800/450?random=5" alt="图5" >
+        <div class="banner">
+          <div class="swiper swi-banner" style="--arr: url('https://cdn.littletuan.com/third/ver202403/arr1.svg');">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide">
+                <div class="item has-link" data-href="time.html">
+                  <div class="img-wrap"><img src="gd1.jpg" alt="图1"></div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="item has-link" data-href="https://mp.weixin.qq.com/s/Ydptq01KOBoXR7nXBdMh0Q">
+                  <div class="img-wrap"><img src="gd2.jpg" alt="图2"></div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="item has-link" data-href="https://mp.weixin.qq.com/s/G9l5XR7qGsJamSHsWNJnXw">
+                  <div class="img-wrap"><img src="gd3.jpg" alt="图3"></div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="item has-link" data-href="https://mp.weixin.qq.com/s/bEFJzfNgTC4qrh-viOcD5w">
+                  <div class="img-wrap"><img src="gd4.jpg" alt="图4"></div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="item has-link" data-href="https://mp.weixin.qq.com/s/替换为图5链接">
+                  <div class="img-wrap"><img src="gd5.jpg" alt="图5"></div>
+                </div>
+              </div>
+            </div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-pagination"></div>
           </div>
-          <div class="carousel-prev-thumb" id="prevThumb"></div>
-          <div class="carousel-next-thumb" id="nextThumb"></div>
-          <div class="carousel-arrow carousel-prev" id="prevBtn"></div>
-          <div class="carousel-arrow carousel-next" id="nextBtn"></div>
         </div>
       </section>
 
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-      const carousel = document.getElementById('carousel');
-      const mainImages = carousel.querySelectorAll('.carousel-main img');
-      const prevThumb = document.getElementById('prevThumb');
-      const nextThumb = document.getElementById('nextThumb');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-
-      let currentIndex = 0;
-      const total = mainImages.length;
-      let autoplayTimer;
-
-      function updateThumbs() {
-        const prevIdx = (currentIndex - 1 + total) % total;
-        const nextIdx = (currentIndex + 1) % total;
-        prevThumb.innerHTML = `<img src="${mainImages[prevIdx].src}" alt="上一张">`;
-        nextThumb.innerHTML = `<img src="${mainImages[nextIdx].src}" alt="下一张">`;
-      }
-
-      function goTo(index) {
-        mainImages[currentIndex].classList.remove('active');
-        currentIndex = (index + total) % total;
-        mainImages[currentIndex].classList.add('active');
-        updateThumbs();
-        carouselMain.style.cursor = (mainImages[currentIndex].src.includes('gd1.jpg') || mainImages[currentIndex].dataset.href) ? 'pointer' : 'default';
-      }
-
-      function prev() {
-        goTo(currentIndex - 1);
-      }
-
-      function next() {
-        goTo(currentIndex + 1);
-      }
-
-      function startAutoplay() {
-        stopAutoplay();
-        autoplayTimer = setInterval(next, 3000);
-      }
-
-      function stopAutoplay() {
-        clearInterval(autoplayTimer);
-      }
-
-      prevBtn.addEventListener('click', prev);
-      nextBtn.addEventListener('click', next);
-      prevThumb.addEventListener('click', prev);
-      nextThumb.addEventListener('click', next);
-
-      carousel.addEventListener('mouseenter', stopAutoplay);
-      carousel.addEventListener('mouseleave', startAutoplay);
-
-      const carouselMain = carousel.querySelector('.carousel-main');
-      carouselMain.addEventListener('click', function() {
-        const currentImg = mainImages[currentIndex];
-        if (currentImg.src.includes('gd1.jpg')) {
-          window.location.href = 'time.html';
-        } else if (currentImg.dataset.href) {
-          window.open(currentImg.dataset.href, '_blank');
-        }
+      const swiper = new Swiper('.swi-banner', {
+        loop: true,
+        centeredSlides: true,
+        slidesPerView: 'auto',
+        spaceBetween: 24,
+        autoplay: {
+          delay: 3000,
+          disableOnInteraction: false,
+        },
+        navigation: {
+          prevEl: '.swiper-button-prev',
+          nextEl: '.swiper-button-next',
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
       });
 
-      updateThumbs();
-      carouselMain.style.cursor = (mainImages[currentIndex].src.includes('gd1.jpg') || mainImages[currentIndex].dataset.href) ? 'pointer' : 'default';
-      startAutoplay();
+      // 点击有链接的 slide 跳转
+      document.querySelectorAll('.swi-banner .item.has-link').forEach(item => {
+        item.addEventListener('click', () => {
+          const href = item.dataset.href;
+          if (!href) return;
+          if (href === 'time.html') {
+            window.location.href = href;
+          } else {
+            window.open(href, '_blank');
+          }
+        });
+      });
     </script>
   </body>
 </html>
