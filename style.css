@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   padding-top: 80px;
 }
@@ -377,6 +381,7 @@ main section:not(.firstpic-section) {
   margin: 50px auto 40px;
   padding: 0 20px;
   position: relative;
+  overflow: hidden;
 }
 
 .swiper.swi-banner {
@@ -387,6 +392,7 @@ main section:not(.firstpic-section) {
 .swiper.swi-banner .swiper-slide {
   width: 640px;
   height: 400px;
+  max-width: calc(100vw - 80px);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
@@ -523,7 +529,7 @@ main section:not(.firstpic-section) {
   }
 
   header h1 img {
-    height: 45px;
+    height: 40px;
   }
 
   header ul {
@@ -531,7 +537,17 @@ main section:not(.firstpic-section) {
   }
 
   header ul li a {
-    font-size: 12px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 400px) {
+    header ul {
+      gap: 10px;
+    }
+
+    header ul li a {
+      font-size: 12px;
+    }
   }
 
   body {
@@ -567,6 +583,7 @@ main section:not(.firstpic-section) {
   .swiper.swi-banner .swiper-slide {
     width: 280px;
     height: 200px;
+    max-width: calc(100vw - 60px);
   }
 
   .swiper.swi-banner .swiper-button-prev,
